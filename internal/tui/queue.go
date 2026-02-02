@@ -54,12 +54,22 @@ func (m MainModel) updateQueue(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil // or some cmd
 		case "d":
 			// Delete selected
-			// We need to implement delete from pipeline queue?
-			// Pipeline queue is chan, hard to delete arbitrary.
-			// Pipeline 'Jobs' slice is modifiable only if we lock.
-			// For now just allow clearing completed or cancelling.
-		case "x":
-			// Cancel current?
+			// We need to know which one is selected in table
+			// bubbles/table selected index matches Rows index
+			// Our Rows match p.Jobs() order
+			if len(m.queue.table.Rows()) > 0 {
+				idx := m.queue.table.Cursor()
+				jobs := m.pipeline.Jobs() // Valid copy?
+				// Race condition if pipeline removes jobs in background?
+				// Pipeline only removes if WE tell it to, or finish?
+				// It doesn't auto-remove.
+				if idx >= 0 && idx < len(jobs) {
+					job := jobs[idx]
+					m.pipeline.RemoveJob(job.FilePath)
+				}
+			}
+		case "c":
+			m.pipeline.ClearCompleted()
 		}
 	
 	// We need to subscribe to pipeline updates mainly in Progress view, 

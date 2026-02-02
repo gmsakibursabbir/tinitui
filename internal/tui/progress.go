@@ -51,10 +51,20 @@ func (m MainModel) updateProgress(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		if msg.String() == "x" {
+		switch msg.String() {
+		case "x":
 			// Cancel
 			m.pipeline.Stop() // Or cancel current
 			m.state = StateQueue // Go back
+		case "p":
+			isPaused := m.pipeline.TogglePause()
+			// Maybe show paused indicator?
+			// View will handle it if we check pipeline state?
+			// Pipeline struct has isPaused. We need to expose it or job status update?
+			// Pipeline pause logic updates workers.
+			// Let's rely on View showing "Paused" if we can access it.
+			// For now just toggle.
+			_ = isPaused
 		}
 	case tickMsg:
 		// Periodic update if needed, but we rely on pipeline updates

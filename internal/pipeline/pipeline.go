@@ -344,6 +344,42 @@ func copyFile(src, dst string) error {
 	return nil
 }
 
+func (p *Pipeline) RemoveJob(filePath string) {
+	p.jobMutex.Lock()
+	defer p.jobMutex.Unlock()
+	// Filter
+	n := 0
+	for _, x := range p.jobs {
+		if x.FilePath != filePath {
+			p.jobs[n] = x
+			n++
+		} else {
+			// If processing, we can't easily kill without context map
+			// But if pending/done/failed, easy.
+			// Pipeline worker checks cancel?
+		}
+	}
+	p.jobs = p.jobs[:n]
+	// broadcast update?
+	// TUI polls jobs or list updates.
+	// We might need to send a "Deleted" event?
+	// Just broadcasting a dummy job or relying on next TUI update tick/action.
+	// But TUI Queue View calls p.Jobs() so on next update it will reflect.
+}
+
+func (p *Pipeline) ClearCompleted() {
+	p.jobMutex.Lock()
+	defer p.jobMutex.Unlock()
+	n := 0
+	for _, x := range p.jobs {
+		if x.Status != StatusDone && x.Status != StatusFailed {
+			p.jobs[n] = x
+			n++
+		}
+	}
+	p.jobs = p.jobs[:n]
+}
+
 func (p *Pipeline) Jobs() []*Job {
 	p.jobMutex.RLock()
 	defer p.jobMutex.RUnlock()

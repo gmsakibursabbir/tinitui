@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/tinytui/tinytui/internal/scanner"
 )
 
 type browserModel struct {
@@ -17,6 +18,7 @@ type browserModel struct {
 	files      list.Model
 	activePane int // 0 = Dirs, 1 = Files
 	selected   map[string]bool
+	recursive  bool
 	err        error
 }
 
@@ -125,17 +127,49 @@ func (m MainModel) updateBrowser(msg tea.Msg) (tea.Model, tea.Cmd) {
 					// Reset cursor?
 					m.browser.dirs.ResetSelected()
 				}
-			} else {
-				// On file: toggle select? Or "Done"?
-				// Prompt: "Space select/unselect". "Done -> add to queue".
-				// Enter on file might just select? Or open?
-				// Maybe Enter finishes selection? "Done -> add to queue".
-				// Let's make Enter = Done if in File pane? Or explicit key?
-				// "Done -> add to queue". Maybe a separate button or Key?
-				// "A add files" (Global).
-				// If in browser, maybe 'd' or Enter finishes?
-				// Let's use 'a' to add selected and go to queue?
-				// Or Enter toggles.
+			}
+		case "x":
+			// Toggle recursive scan for "Add"?
+			// Or toggle view mode?
+			// Requirement: "Options: [x] recursive".
+			// This likely affects what happens when we "Add" a folder?
+			// The File Picker desc says: "Done -> add to queue".
+			// If we select a FOLDER in left pane, do we add it?
+			// My browser implementation currently adds items from "selected" map.
+			// Currently I only allow selecting FILES in right pane.
+			// "Left: directories ... Right: image files".
+			// "Space select/unselect".
+			// "Options: [x] recursive"
+			// "Done -> add to queue"
+			
+			// Interpretation:
+			// If I select a directory in Left pane, and press Space, do I select it?
+			// If so, recursive flag applies to that directory addition.
+			
+			// Current implementation:
+			// Space in activePane==1 (files) toggles selection.
+			// Space in activePane==0 (dirs) ?? 
+			
+			// Let's implement Space in Dirs pane to select the dir.
+			// And 'x' to toggle recursive flag in browser model.
+			
+			if m.browser.activePane == 0 {
+				// Support selecting directories?
+				// m.browser.selected is map[string]bool.
+				// If I add a dir path there, Pipeline.AddFiles needs to handle it.
+				// Scanner.Scan(paths, recursive) supports it.
+				// So if I pass directory paths to pipeline, and pipeline uses scanner...
+				// Wait, Pipeline.AddFiles uses os.Stat -> if file, add.
+				// Pipeline.AddFiles logic:
+				// "info, err := os.Stat(path) ... if err == nil { size = info.Size() } ... p.jobs = append"
+				// Pipeline doesn't call Scanner.
+				// Scanner is used in CLI before passing to Pipeline.
+				// In TUI, `m.pipeline.AddFiles(paths)` assumes paths are identifiable jobs?
+				// Pipeline needs to Scan if we pass directories?
+				// Or TUI should Scan before passing to Pipeline.
+				
+				// Fix: TUI "A" handler should Scan selected paths.
+				m.browser.recursive = !m.browser.recursive
 			}
 		case "backspace":
 			// Go up
@@ -146,7 +180,7 @@ func (m MainModel) updateBrowser(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case " ":
 			if m.browser.activePane == 1 {
-				// Toggle
+				// Toggle file
 				i := m.browser.files.SelectedItem()
 				if i != nil {
 					f := i.(fileItem)
@@ -154,6 +188,17 @@ func (m MainModel) updateBrowser(msg tea.Msg) (tea.Model, tea.Cmd) {
 						delete(m.browser.selected, f.path)
 					} else {
 						m.browser.selected[f.path] = true
+					}
+				}
+			} else {
+				// Toggle Dir?
+				i := m.browser.dirs.SelectedItem()
+				if i != nil {
+					d := i.(dirItem)
+					if m.browser.selected[d.path] {
+						delete(m.browser.selected, d.path)
+					} else {
+						m.browser.selected[d.path] = true
 					}
 				}
 			}
@@ -173,10 +218,13 @@ func (m MainModel) updateBrowser(msg tea.Msg) (tea.Model, tea.Cmd) {
 				paths = append(paths, p)
 			}
 			if len(paths) > 0 {
-				m.pipeline.AddFiles(paths)
-				m.state = StateQueue
-				// Clear selection?
-				m.browser.selected = make(map[string]bool)
+				// Scan them!
+				res, _ := scanner.Scan(paths, m.browser.recursive)
+				if len(res.Images) > 0 {
+					m.pipeline.AddFiles(res.Images)
+					m.state = StateQueue
+					m.browser.selected = make(map[string]bool)
+				}
 			}
 		}
 	case tea.WindowSizeMsg:
@@ -223,8 +271,17 @@ func (m MainModel) viewBrowser() string {
 	// But we render the list.
 	// We might need a custom item delegate to render the [x].
 	
-	return lipgloss.JoinHorizontal(lipgloss.Top,
-		leftStyle.Render(m.browser.dirs.View()),
-		rightStyle.Render(m.browser.files.View()),
+	// Recursive status
+	recStatus := "[ ] Recursive (x)"
+	if m.browser.recursive {
+		recStatus = "[x] Recursive (x)"
+	}
+	
+	return lipgloss.JoinVertical(lipgloss.Left,
+		lipgloss.JoinHorizontal(lipgloss.Top,
+			leftStyle.Render(m.browser.dirs.View()),
+			rightStyle.Render(m.browser.files.View()),
+		),
+		docStyle.Render(recStatus),
 	)
 }

@@ -40,7 +40,9 @@ type MainModel struct {
 	queue       queueModel
 	progress    progressModel
 	history     historyModel
+	settings    settingsModel
 	
+	showingHelp bool
 	width  int
 	height int
 	
@@ -56,6 +58,7 @@ func InitialModel(cfg *config.Config) MainModel {
 		queue:    newQueueModel(),
 		progress: newProgressModel(),
 		history:  newHistoryModel(),
+		settings: newSettingsModel(),
 	}
 	
 	if !cfg.IsConfigured() {
@@ -101,8 +104,21 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.state = StateSettings // Not fully impl
 		case "a":
 			m.state = StateBrowser
+		case "w":
+			// Toggle Mascot
+			switch m.config.Mascot {
+			case config.MascotOff:
+				m.config.Mascot = config.MascotOn
+			default:
+				m.config.Mascot = config.MascotOff
+			}
+			m.config.Save()
 		case "?":
-			// Help
+			// Toggle Help?
+			// Or simple modal state?
+			// Let's just create a quick help state or overlay.
+			// For minimal impact, just toggle a help variable in model.
+			m.showingHelp = !m.showingHelp
 		}
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
@@ -121,6 +137,8 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.updateProgress(msg)
 	case StateHistory:
 		return m.updateHistory(msg)
+	case StateSettings:
+		return m.updateSettings(msg)
 	}
 	
 	return m, nil
@@ -148,6 +166,8 @@ func (m MainModel) View() string {
 		content = m.viewProgress()
 	case StateHistory:
 		content = m.viewHistory()
+	case StateSettings:
+		content = m.viewSettings()
 	default:
 		content = fmt.Sprintf("State: %v", m.state)
 	}
@@ -170,6 +190,14 @@ func (m MainModel) View() string {
 		// Content usually takes full width in docStyle.
 		// Let's put mascot above bottom bar?
 		content = lipgloss.JoinHorizontal(lipgloss.Top, content, mascot)
+	}
+
+	if m.showingHelp {
+		// Simple overlay
+		helpText := docStyle.Render("Help:\n\nGlobal:\n A - Add Files\n R - Run\n S - Settings\n H - History\n W - Toggle Mascot\n ? - Toggle Help\n Q - Quit\n\nBrowser:\n Space - Select\n X - Toggle Recursive\n A - Add Selection\n\nQueue:\n Space - Select\n D - Delete\n C - Clear Completed\n\nCompress:\n P - Pause/Resume\n X - Cancel")
+		// replace content? or overlay?
+		// simple replacement for now
+		content = helpText
 	}
 
 	return lipgloss.JoinVertical(lipgloss.Left, topBar, content, bottomBar)
@@ -215,7 +243,7 @@ func (m MainModel) renderTopBar() string {
 		tabs = strings.Replace(tabs, "[ History ]", "[ *History* ]", 1)
 	}
 	
-	return titleStyle.Render("TinyTUI v1.0") + " " + status + " | " + mode + " | " + tabs
+	return titleStyle.Render("TinyTUI v1.0.3") + " " + status + " | " + mode + " | " + tabs
 }
 
 func (m MainModel) renderBottomBar() string {
