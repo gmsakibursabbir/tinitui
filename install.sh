@@ -47,17 +47,34 @@ echo "Latest version: ${TAG_NAME}"
 DOWNLOAD_URL="https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${TAG_NAME}/${ASSET_NAME}"
 
 # Determine install directory
-if [ -w "/usr/local/bin" ]; then
-    INSTALL_DIR="/usr/local/bin"
-    SUDO=""
-else
     INSTALL_DIR="$HOME/.local/bin"
     mkdir -p "$INSTALL_DIR"
     SUDO=""
-    # Warn if not in PATH
+    
+    # Check PATH
     case ":$PATH:" in
         *":$INSTALL_DIR:"*) ;;
-        *) echo "Warning: $INSTALL_DIR is not in your PATH." ;;
+        *)
+            # Try to auto-add to PATH
+            SHELL_CONFIG=""
+            if [ -f "$HOME/.zshrc" ]; then
+                SHELL_CONFIG="$HOME/.zshrc"
+            elif [ -f "$HOME/.bashrc" ]; then
+                SHELL_CONFIG="$HOME/.bashrc"
+            elif [ -f "$HOME/.profile" ]; then
+                SHELL_CONFIG="$HOME/.profile"
+            fi
+            
+            if [ -n "$SHELL_CONFIG" ]; then
+                echo "Adding $INSTALL_DIR to PATH in $SHELL_CONFIG..."
+                echo "" >> "$SHELL_CONFIG"
+                echo "# TiniTUI" >> "$SHELL_CONFIG"
+                echo "export PATH=\"\$HOME/.local/bin:\$PATH\"" >> "$SHELL_CONFIG"
+                echo "Fixed! Please restart your shell or run: source $SHELL_CONFIG"
+            else
+                echo "Warning: $INSTALL_DIR is not in your PATH. Please add it manually."
+            fi
+            ;;
     esac
 fi
 
