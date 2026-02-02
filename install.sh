@@ -76,7 +76,7 @@ DOWNLOAD_URL="https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${
             fi
             ;;
     esac
-fi
+    esac
 
 # Download
 TMP_FILE=$(mktemp)
