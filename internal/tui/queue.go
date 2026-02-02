@@ -48,13 +48,26 @@ func (m *queueModel) Sync(jobs []*pipeline.Job) {
 	rows := make([]table.Row, len(jobs))
 	for i, j := range jobs {
 		after := "-"
-		if j.CompressedSize > 0 {
-			after = formatBytes(j.CompressedSize)
+		status := string(j.Status)
+
+		if j.Status == pipeline.StatusProcessing {
+			status = "⏳ Compressing"
+		} else if j.Status == pipeline.StatusDone {
+			if j.CompressedSize > 0 {
+				after = formatBytes(j.CompressedSize)
+				// Calculate savings %
+				saved := 100.0 - (float64(j.CompressedSize)/float64(j.OriginalSize))*100.0
+				status = fmt.Sprintf("✔ %.1f%% Saved", saved)
+			} else {
+				status = "✔ Done"
+			}
+		} else if j.Status == pipeline.StatusFailed {
+			status = "❌ Failed"
 		}
-		
+
 		rows[i] = table.Row{
 			filepath.Base(j.FilePath),
-			string(j.Status),
+			status,
 			formatBytes(j.OriginalSize),
 			after,
 		}
@@ -96,9 +109,33 @@ func (m MainModel) updateQueue(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m MainModel) viewQueue() string {
+	jobs := m.pipeline.Jobs()
+	total := len(jobs)
+	processed := 0
+	savedBytes := int64(0)
+	
+	for _, j := range jobs {
+		if j.Status == pipeline.StatusDone {
+			processed++
+			if j.CompressedSize > 0 {
+				savedBytes += (j.OriginalSize - j.CompressedSize)
+			}
+		}
+	}
+	
+	stats := fmt.Sprintf("Processed: %d/%d", processed, total)
+	if savedBytes > 0 {
+		stats += fmt.Sprintf(" | Saved: %s", formatBytes(savedBytes))
+	}
+	
+	footerStyle := lipgloss.NewStyle().
+		MarginTop(1).
+		Foreground(lipgloss.Color("241"))
+
 	return docStyle.Render(
-		"Queue (" + fmt.Sprintf("%d", len(m.pipeline.Jobs())) + " files)\n" +
+		"Queue (" + fmt.Sprintf("%d", total) + " files)\n" +
 		"Press 'r' to start compression.\n\n" +
-		m.queue.table.View(),
+		m.queue.table.View() + "\n" +
+		footerStyle.Render(stats),
 	)
 }

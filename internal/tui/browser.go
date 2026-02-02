@@ -161,36 +161,16 @@ func (b *browserModel) updateListItems() {
 func (b *browserModel) updatePreview() {
 	i := b.mainList.SelectedItem()
 	if i == nil {
-		b.previewContent = "Empty"
+		b.previewContent = "No selection"
 		return
 	}
 	
 	item := i.(browserItem)
-	if item.name == ".." {
-		b.previewContent = "⬆️  Parent Directory"
-		return
-	}
+	// Calculate available space in preview pane
+	w := (b.dims.width / 2) - 6
+	h := b.dims.height - 8
 	
-	// Simple Preview Info
-	content := fmt.Sprintf("Name: %s\nType: %s\nSize: %s\nModified: %s\nPath: %s",
-		item.name,
-		map[bool]string{true: "Directory", false: "File"}[item.isDir],
-		formatBytes(item.size),
-		item.modTime.Format("2006-01-02 15:04:05"),
-		item.path,
-	)
-	
-	if !item.isDir {
-		// Maybe add image dimensions if we read headers? (Too slow for now)
-		// ext := filepath.Ext(item.name)
-		// content += fmt.Sprintf("\nExtension: %s", ext)
-	} else {
-		// Count items in dir?
-		entries, _ := os.ReadDir(item.path)
-		content += fmt.Sprintf("\n\nContents: %d items", len(entries))
-	}
-	
-	b.previewContent = content
+	b.previewContent = generatePreview(item.path, w, h)
 }
 
 func (m MainModel) updateBrowser(msg tea.Msg) (tea.Model, tea.Cmd) {
