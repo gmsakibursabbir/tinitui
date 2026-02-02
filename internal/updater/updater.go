@@ -139,10 +139,62 @@ func Update(release *Release) error {
 		return err
 	}
 
-	// Safe rename
-	if err := os.Rename(tmpFile.Name(), exePath); err != nil {
+	// Safe rename with fallback
+	if err := moveFile(tmpFile.Name(), exePath); err != nil {
 		return err
 	}
 
+	return nil
+}
+
+// moveFile attempts to rename, falling back to copy-delete if cross-device link error occurs
+func moveFile(source, destination string) error {
+	err := os.Rename(source, destination)
+	if err == nil {
+		return nil
+	}
+
+	// If rename failed, try copy and delete (likely cross-device)
+	// Open source
+	srcFile, err := os.Open(source)
+	if err != nil {
+		return err
+	}
+	defer srcFile.Close()
+
+	// Create dest (atomic-ish: create temp next to dest then rename)
+	destDir := filepath.Dir(destination)
+	tmpDest, err := os.CreateTemp(destDir, ".tinitui-update-*")
+	if err != nil {
+		// Fallback to direct create if temp fails (permissions?)
+		// But let's try direct create as last resort or just error.
+		return fmt.Errorf("failed to create temp file in target dir: %w", err)
+	}
+	defer os.Remove(tmpDest.Name()) // Clean up if we fail before rename
+
+	// Copy
+	if _, err := io.Copy(tmpDest, srcFile); err != nil {
+		tmpDest.Close()
+		return err
+	}
+	
+	// Preserve permissions
+	info, err := srcFile.Stat()
+	if err == nil {
+		tmpDest.Chmod(info.Mode())
+	} else {
+		tmpDest.Chmod(0755)
+	}
+	
+	tmpDest.Close()
+
+	// Atomic Rename in target fs
+	if err := os.Rename(tmpDest.Name(), destination); err != nil {
+		return err
+	}
+	
+	// Clean up source
+	os.Remove(source)
+	
 	return nil
 }
