@@ -1,8 +1,8 @@
-# TinyTUI
+# TiniTUI
 
 A Production-Ready, Cross-Platform TUI + CLI application for compressing images using the TinyPNG / Tinify Developer API.
 
-![TinyTUI Demo](demo.png)
+![TiniTUI Demo](demo.png)
 
 ## Features
 
@@ -17,10 +17,10 @@ A Production-Ready, Cross-Platform TUI + CLI application for compressing images 
 ### From Source
 
 ```bash
-git clone https://github.com/tinytui/tinytui.git
-cd tinytui
-go build -o tinytui .
-sudo mv tinytui /usr/local/bin/
+git clone https://github.com/tinytui/tinitui.git
+cd tinitui
+go build -o tinitui .
+sudo mv tinitui /usr/local/bin/
 ```
 
 ## Setup
@@ -28,20 +28,20 @@ sudo mv tinytui /usr/local/bin/
 First run will prompt for your TinyPNG API Key:
 
 ```bash
-tinytui
+tinitui
 ```
 
 Or set it via CLI:
 
 ```bash
-tinytui config set-key <YOUR_API_KEY>
+tinitui config set-key <YOUR_API_KEY>
 ```
 
 ## Usage
 
 ### TUI Mode
 
-Simply run `tinytui` to open the interactive interface.
+Simply run `tinitui` to open the interactive interface.
 
 - **Browser**: Navigate directories (Enter), toggle file selection (Space), Add to Queue (A).
 - **Queue**: Review selected files. Press `R` to run compression.

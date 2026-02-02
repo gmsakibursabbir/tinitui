@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
-	"github.com/tinytui/tinytui/internal/history"
-	"github.com/tinytui/tinytui/internal/pipeline"
-	"github.com/tinytui/tinytui/internal/scanner"
+	"github.com/tinytui/tinitui/internal/history"
+	"github.com/tinytui/tinitui/internal/pipeline"
+	"github.com/tinytui/tinitui/internal/scanner"
 )
 
 var (

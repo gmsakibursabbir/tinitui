@@ -5,7 +5,7 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/tinytui/tinytui/internal/config"
+	"github.com/tinytui/tinitui/internal/config"
 )
 
 // Start initializes and runs the Bubble Tea program

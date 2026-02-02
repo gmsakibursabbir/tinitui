@@ -7,8 +7,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/tinytui/tinytui/internal/config"
-	"github.com/tinytui/tinytui/internal/pipeline"
+	"github.com/tinytui/tinitui/internal/config"
+	"github.com/tinytui/tinitui/internal/pipeline"
 )
 
 type SessionState int
@@ -243,7 +243,7 @@ func (m MainModel) renderTopBar() string {
 		tabs = strings.Replace(tabs, "[ History ]", "[ *History* ]", 1)
 	}
 	
-	return titleStyle.Render("TinyTUI v1.0.3") + " " + status + " | " + mode + " | " + tabs
+	return titleStyle.Render("TiniTUI v1.0.3") + " " + status + " | " + mode + " | " + tabs
 }
 
 func (m MainModel) renderBottomBar() string {

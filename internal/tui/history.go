@@ -8,7 +8,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/tinytui/tinytui/internal/history"
+	"github.com/tinytui/tinitui/internal/history"
 )
 
 type historyModel struct {

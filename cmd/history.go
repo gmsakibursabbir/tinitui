@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/tinytui/tinytui/internal/history"
+	"github.com/tinytui/tinitui/internal/history"
 )
 
 var csvOutput string

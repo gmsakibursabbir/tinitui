@@ -1,6 +1,6 @@
 package main
 
-import "github.com/tinytui/tinytui/cmd"
+import "github.com/tinytui/tinitui/cmd"
 
 func main() {
 	cmd.Execute()

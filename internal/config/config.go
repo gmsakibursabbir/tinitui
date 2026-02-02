@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	DirName      = "tinytui"
+	DirName      = "tinitui"
 	ConfigName   = "config.json"
 	EnvAPIKey    = "TINYPNG_API_KEY"
 	PermFile     = 0600

@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	DirName     = "tinytui"
+	DirName     = "tinitui"
 	FileName    = "history.json"
 	PermDir     = 0755 // Config is 0700 but history can be 755 usually, but let's stick to user privacy if needed. standard state is 700 or 755.
 	PermFile    = 0644

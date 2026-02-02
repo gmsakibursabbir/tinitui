@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/tinytui/tinytui/internal/config"
+	"github.com/tinytui/tinitui/internal/config"
 )
 
 var configCmd = &cobra.Command{

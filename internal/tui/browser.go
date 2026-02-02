@@ -9,7 +9,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/tinytui/tinytui/internal/scanner"
+	"github.com/tinytui/tinitui/internal/scanner"
 )
 
 type browserModel struct {

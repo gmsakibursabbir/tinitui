@@ -5,15 +5,15 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/tinytui/tinytui/internal/config"
-	"github.com/tinytui/tinytui/internal/tui"
+	"github.com/tinytui/tinitui/internal/config"
+	"github.com/tinytui/tinitui/internal/tui"
 )
 
 var cfg *config.Config
 
 var rootCmd = &cobra.Command{
-	Use:   "tinytui",
-	Short: "TinyTUI is a TUI for compressing images via TinyPNG",
+	Use:   "tinitui",
+	Short: "TiniTUI is a TUI for compressing images via TinyPNG",
 	Long:  `A modern, beautiful Terminal User Interface for compressing images using the TinyPNG API.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Default action: Run TUI

@@ -6,7 +6,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/tinytui/tinytui/internal/config"
+	"github.com/tinytui/tinitui/internal/config"
 )
 
 type settingsModel struct {
