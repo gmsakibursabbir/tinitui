@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/gmsakibursabbir/tinitui/internal/pipeline"
 )
 
 type queueModel struct {
@@ -42,6 +43,25 @@ func newQueueModel() queueModel {
 	return queueModel{table: t}
 }
 
+// Sync updates the table rows from the provided jobs
+func (m *queueModel) Sync(jobs []*pipeline.Job) {
+	rows := make([]table.Row, len(jobs))
+	for i, j := range jobs {
+		after := "-"
+		if j.CompressedSize > 0 {
+			after = formatBytes(j.CompressedSize)
+		}
+		
+		rows[i] = table.Row{
+			filepath.Base(j.FilePath),
+			string(j.Status),
+			formatBytes(j.OriginalSize),
+			after,
+		}
+	}
+	m.table.SetRows(rows)
+}
+
 func (m MainModel) updateQueue(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	
@@ -69,22 +89,7 @@ func (m MainModel) updateQueue(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 	
 	// Sync table with pipeline jobs
-	jobs := m.pipeline.Jobs() // Thread safe copy
-	rows := make([]table.Row, len(jobs))
-	for i, j := range jobs {
-		after := "-"
-		if j.CompressedSize > 0 {
-		    after = formatBytes(j.CompressedSize)
-		}
-		
-		rows[i] = table.Row{
-			filepath.Base(j.FilePath),
-			string(j.Status),
-			formatBytes(j.OriginalSize),
-			after,
-		}
-	}
-	m.queue.table.SetRows(rows)
+	m.queue.Sync(m.pipeline.Jobs())
 
 	m.queue.table, cmd = m.queue.table.Update(msg)
 	return m, cmd

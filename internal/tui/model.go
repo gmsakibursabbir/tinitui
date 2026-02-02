@@ -127,6 +127,15 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.config.Mascot = config.MascotOff
 			}
 			m.config.Save()
+		case "d":
+			if m.state != StateQueue {
+				m.state = StateQueue
+				// Sync just in case? Usually sync happens on 'a'.
+				// But if user manually switches, we should ensure it's up to date.
+				if m.pipeline != nil {
+					m.queue.Sync(m.pipeline.Jobs())
+				}
+			}
 		case "?":
 			// Toggle Help?
 			// Or simple modal state?
