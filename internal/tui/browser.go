@@ -633,7 +633,11 @@ func (m MainModel) viewBrowser() string {
 			Bold(true).
 			Render(item.name)
 			
-		previewText = fmt.Sprintf("%s\n%s\n%s", header, strings.Repeat("─", previewWidth-4), m.browser.previewContent)
+		repeatCount := previewWidth - 4
+		if repeatCount < 0 {
+			repeatCount = 0
+		}
+		previewText = fmt.Sprintf("%s\n%s\n%s", header, strings.Repeat("─", repeatCount), m.browser.previewContent)
 	} else {
 		previewText = m.browser.previewContent
 	}
