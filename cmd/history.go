@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/gmsakibursabbir/tinitui/internal/history"
 	"github.com/spf13/cobra"
-	"github.com/tinytui/tinitui/internal/history"
 )
 
 var csvOutput string

@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/gmsakibursabbir/tinitui/internal/config"
+	"github.com/gmsakibursabbir/tinitui/internal/tui"
+	"github.com/gmsakibursabbir/tinitui/internal/version"
 	"github.com/spf13/cobra"
-	"github.com/tinytui/tinitui/internal/config"
-	"github.com/tinytui/tinitui/internal/tui"
-	"github.com/tinytui/tinitui/internal/version"
 )
 
 var (

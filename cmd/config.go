@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/gmsakibursabbir/tinitui/internal/config"
 	"github.com/spf13/cobra"
-	"github.com/tinytui/tinitui/internal/config"
 )
 
 var configCmd = &cobra.Command{

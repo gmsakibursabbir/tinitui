@@ -1,4 +1,4 @@
-module github.com/tinytui/tinitui
+module github.com/gmsakibursabbir/tinitui
 
 go 1.25.6
 

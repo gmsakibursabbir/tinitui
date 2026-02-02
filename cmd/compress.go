@@ -8,10 +8,10 @@ import (
 	"text/tabwriter"
 	"time"
 
+	"github.com/gmsakibursabbir/tinitui/internal/history"
+	"github.com/gmsakibursabbir/tinitui/internal/pipeline"
+	"github.com/gmsakibursabbir/tinitui/internal/scanner"
 	"github.com/spf13/cobra"
-	"github.com/tinytui/tinitui/internal/history"
-	"github.com/tinytui/tinitui/internal/pipeline"
-	"github.com/tinytui/tinitui/internal/scanner"
 )
 
 var (

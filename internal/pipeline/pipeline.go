@@ -8,8 +8,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/tinytui/tinitui/internal/config"
-	"github.com/tinytui/tinitui/internal/tinify"
+	"github.com/gmsakibursabbir/tinitui/internal/config"
+	"github.com/gmsakibursabbir/tinitui/internal/tinify"
 )
 
 type JobStatus string

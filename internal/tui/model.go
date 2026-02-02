@@ -7,8 +7,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
-	"github.com/tinytui/tinitui/internal/config"
-	"github.com/tinytui/tinitui/internal/pipeline"
+	"github.com/gmsakibursabbir/tinitui/internal/config"
+	"github.com/gmsakibursabbir/tinitui/internal/pipeline"
 )
 
 type SessionState int

@@ -7,9 +7,9 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/tinytui/tinitui/internal/config"
-	"github.com/tinytui/tinitui/internal/updater"
-	"github.com/tinytui/tinitui/internal/version"
+	"github.com/gmsakibursabbir/tinitui/internal/config"
+	"github.com/gmsakibursabbir/tinitui/internal/updater"
+	"github.com/gmsakibursabbir/tinitui/internal/version"
 )
 
 type settingsModel struct {

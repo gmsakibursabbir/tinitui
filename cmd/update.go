@@ -6,9 +6,9 @@ import (
 	"os"
 	"strings"
 
+	"github.com/gmsakibursabbir/tinitui/internal/updater"
+	"github.com/gmsakibursabbir/tinitui/internal/version"
 	"github.com/spf13/cobra"
-	"github.com/tinytui/tinitui/internal/updater"
-	"github.com/tinytui/tinitui/internal/version"
 )
 
 var autoYes bool

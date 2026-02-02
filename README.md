@@ -14,13 +14,36 @@ A Production-Ready, Cross-Platform TUI + CLI application for compressing images 
 
 ## Installation
 
+### Quick Install
+
+**Linux & macOS:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/gmsakibursabbir/tinitui/main/install.sh | sh
+```
+
+**Windows (PowerShell):**
+
+```powershell
+iwr https://raw.githubusercontent.com/gmsakibursabbir/tinitui/main/install.ps1 -useb | iex
+```
+
+### Self-Update
+
+Keep TiniTUI up to date with a single command:
+
+```bash
+tinitui update
+```
+
 ### From Source
 
 ```bash
-git clone https://github.com/tinytui/tinitui.git
+git clone https://github.com/gmsakibursabbir/tinitui.git
 cd tinitui
 go build -o tinitui .
-sudo mv tinitui /usr/local/bin/
+# Optional: Move to PATH
+# sudo mv tinitui /usr/local/bin/
 ```
 
 ## Setup
