@@ -15,9 +15,10 @@ type queueModel struct {
 
 func newQueueModel() queueModel {
 	columns := []table.Column{
-		{Title: "File", Width: 40},
-		{Title: "Status", Width: 15},
-		{Title: "Size", Width: 15},
+		{Title: "File", Width: 30},
+		{Title: "Status", Width: 12},
+		{Title: "Size", Width: 12},
+		{Title: "After", Width: 12},
 	}
 
 	t := table.New(
@@ -50,19 +51,12 @@ func (m MainModel) updateQueue(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "r":
 			// Run compression
 			m.state = StateCompress
-			m.pipeline.Start() // Or Resume/Kickoff
-			return m, nil // or some cmd
+			m.pipeline.Start() 
+			return m, nil 
 		case "d":
-			// Delete selected
-			// We need to know which one is selected in table
-			// bubbles/table selected index matches Rows index
-			// Our Rows match p.Jobs() order
 			if len(m.queue.table.Rows()) > 0 {
 				idx := m.queue.table.Cursor()
-				jobs := m.pipeline.Jobs() // Valid copy?
-				// Race condition if pipeline removes jobs in background?
-				// Pipeline only removes if WE tell it to, or finish?
-				// It doesn't auto-remove.
+				jobs := m.pipeline.Jobs() 
 				if idx >= 0 && idx < len(jobs) {
 					job := jobs[idx]
 					m.pipeline.RemoveJob(job.FilePath)
@@ -72,19 +66,22 @@ func (m MainModel) updateQueue(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.pipeline.ClearCompleted()
 		}
 	
-	// We need to subscribe to pipeline updates mainly in Progress view, 
-	// but Queue view might show pending.
-	// For "Queue", we assume it's the list of files to be processed.
 	}
 	
 	// Sync table with pipeline jobs
 	jobs := m.pipeline.Jobs() // Thread safe copy
 	rows := make([]table.Row, len(jobs))
 	for i, j := range jobs {
+		after := "-"
+		if j.CompressedSize > 0 {
+		    after = formatBytes(j.CompressedSize)
+		}
+		
 		rows[i] = table.Row{
 			filepath.Base(j.FilePath),
 			string(j.Status),
-			fmt.Sprintf("%d", j.OriginalSize),
+			formatBytes(j.OriginalSize),
+			after,
 		}
 	}
 	m.queue.table.SetRows(rows)

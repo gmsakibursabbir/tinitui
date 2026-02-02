@@ -104,11 +104,11 @@ func (m MainModel) updateSettings(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "up", "k":
 			m.settings.cursor--
 			if m.settings.cursor < 0 {
-				m.settings.cursor = 6
+				m.settings.cursor = 7
 			}
 		case "down", "j":
 			m.settings.cursor++
-			if m.settings.cursor > 6 {
+			if m.settings.cursor > 7 {
 				m.settings.cursor = 0
 			}
 		case "enter", " ":
@@ -145,7 +145,13 @@ func (m MainModel) updateSettings(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			case 4: // Metadata
 				m.config.Metadata = !m.config.Metadata
-			case 5: // Update
+			case 5: // Overwrite Original
+				if m.config.Suffix == "" {
+					m.config.Suffix = ".tiny" // Disable overwrite
+				} else {
+					m.config.Suffix = "" // Enable overwrite
+				}
+			case 6: // Update
 				if m.settings.updateAvailable && m.settings.release != nil {
 					// Install
 					m.settings.updateStatus = "Downloading & Installing..."
@@ -157,7 +163,7 @@ func (m MainModel) updateSettings(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.settings.updateStatus = "Checking..."
 					return m, checkUpdateCmd()
 				}
-			case 6: // Back
+			case 7: // Back
 				m.state = StateBrowser
 			}
 			m.config.Save()
@@ -236,15 +242,20 @@ func (m MainModel) viewSettings() string {
 	if m.config.Metadata { metaVal = "ON" }
 	renderItem(4, "Preserve Metadata", metaVal)
 
-	// 5 Update
+	// 5 Overwrite
+	overVal := "NO"
+	if m.config.Suffix == "" { overVal = "YES (Danger!)" }
+	renderItem(5, "Overwrite Original", overVal)
+
+	// 6 Update
 	updateVal := "Check for Updates"
 	if m.settings.updateStatus != "" {
 		updateVal = m.settings.updateStatus
 	}
-	renderItem(5, "Software Update", updateVal)
+	renderItem(6, "Software Update", updateVal)
 
-	// 6 Back
-	renderItem(6, "Back", "")
+	// 7 Back
+	renderItem(7, "Back", "")
 
 	help := "(Space/Enter to change)"
 	if m.settings.editing {
