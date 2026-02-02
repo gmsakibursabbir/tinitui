@@ -2,7 +2,6 @@ package tui
 
 import (
 	"fmt"
-	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -26,8 +25,20 @@ const (
 var (
 	// Styles
 	subtleStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("241"))
-	titleStyle = lipgloss.NewStyle().MarginLeft(1).MarginRight(5).Padding(0, 1).Italic(true).Foreground(lipgloss.Color("#FFF7DB")).Background(lipgloss.Color("#5A56E0"))
-	docStyle    = lipgloss.NewStyle().Margin(1, 2)
+	
+	// Pink/Purple Gradient Aesthetic
+	highlightColor = lipgloss.Color("#FF7CCB") // Pink
+	primaryColor   = lipgloss.Color("#8888FF") // Purple
+	
+	titleStyle = lipgloss.NewStyle().
+		MarginLeft(1).
+		MarginRight(5).
+		Padding(0, 1).
+		Bold(true).
+		Foreground(lipgloss.Color("#FFFFFF")).
+		Background(primaryColor)
+
+	docStyle = lipgloss.NewStyle().Margin(1, 2)
 )
 
 type MainModel struct {
@@ -255,18 +266,34 @@ func (m MainModel) renderTopBar() string {
 	tabs := " [ Browser ] [ Queue ] [ Compress ] [ History ] "
 	// Highlight current
 	// Simple string replacement for highlight based on state
-	switch m.state {
-	case StateBrowser:
-		tabs = strings.Replace(tabs, "[ Browser ]", "[ *Browser* ]", 1)
-	case StateQueue:
-		tabs = strings.Replace(tabs, "[ Queue ]", "[ *Queue* ]", 1)
-	case StateCompress:
-		tabs = strings.Replace(tabs, "[ Compress ]", "[ *Compress* ]", 1)
-	case StateHistory:
-		tabs = strings.Replace(tabs, "[ History ]", "[ *History* ]", 1)
+	// Highlight current
+	// Use lipgloss for better highlighting
+	activeTabStyle := lipgloss.NewStyle().Foreground(highlightColor).Bold(true)
+	inactiveTabStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
+	
+	currentTabStr := func(name string, state SessionState) string {
+		if m.state == state {
+			return activeTabStyle.Render("[ " + name + " ]")
+		}
+		return inactiveTabStyle.Render("[ " + name + " ]")
 	}
 	
-	return titleStyle.Render("TiniTUI "+version.Version) + " " + status + " | " + mode + " | " + tabs
+	tabs = fmt.Sprintf("%s %s %s %s",
+		currentTabStr("Browser", StateBrowser),
+		currentTabStr("Queue", StateQueue),
+		currentTabStr("Compress", StateCompress),
+		currentTabStr("History", StateHistory),
+	)
+	
+	return lipgloss.JoinHorizontal(lipgloss.Center, 
+		titleStyle.Render("TiniTUI "+version.Version),
+		"  ",
+		status,
+		" | ",
+		mode,
+		" | ",
+		tabs,
+	)
 }
 
 func (m MainModel) renderBottomBar() string {

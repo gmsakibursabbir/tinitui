@@ -34,10 +34,10 @@ type dirItem struct {
 	selected bool
 }
 func (d dirItem) Title() string { 
-	if d.name == ".." { return d.name } // Don't select parent
-	prefix := "[ ] "
-	if d.selected { prefix = "[x] " }
-	return prefix + d.name 
+	if d.name == ".." { return "⬆️  .." } 
+	prefix := "☐ "
+	if d.selected { prefix = "☑ " }
+	return prefix + "📁 " + d.name 
 }
 func (d dirItem) Description() string { return "" }
 func (d dirItem) FilterValue() string { return d.name }
@@ -49,11 +49,11 @@ type fileItem struct {
 	selected bool
 }
 func (f fileItem) Title() string {
-	prefix := "[ ] "
-	if f.selected { prefix = "[x] " }
-	return prefix + f.name
+	prefix := "☐ "
+	if f.selected { prefix = "☑ " }
+	return prefix + "📄 " + f.name
 }
-func (f fileItem) Description() string { return fmt.Sprintf("%d bytes", f.size) }
+func (f fileItem) Description() string { return fmt.Sprintf("%s", formatBytes(f.size)) }
 func (f fileItem) FilterValue() string { return f.name }
 
 func newBrowserModel() browserModel {
@@ -283,12 +283,16 @@ func (m MainModel) updateBrowser(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
+// Helper needed if not exported, but formatBytes is in progress.go which is same package tui.
+// It is unexported there `func formatBytes`. I should check if I can use it.
+// It is in the same package `tui`. If I declared it in `progress.go` as `func formatBytes`, it is accessible here.
+
 func (m MainModel) viewBrowser() string {
     // Compact layout: margin 0 or 1
 	leftStyle := docStyle.Copy().Width(m.width/2 - 2).Margin(0, 1)
 	rightStyle := docStyle.Copy().Width(m.width/2 - 2).Margin(0, 1)
 	
-	activeBorder := lipgloss.Color("62") // Purple
+	activeBorder := highlightColor // Pink
 	inactiveBorder := lipgloss.Color("240") // Grey
 
 	if m.browser.activePane == 0 {
@@ -300,8 +304,9 @@ func (m MainModel) viewBrowser() string {
 	}
 
 	// Status line
-	statusStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("241")).Margin(0, 2)
-	status := statusStyle.Render(fmt.Sprintf("Selected: %d | Recursive: %v (X) | [Space/Ent] Toggle | [A] Add | [Esc] Dashboard", len(m.browser.selected), m.browser.recursive))
+	statusStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("252")).Margin(0, 2)
+	statusText := fmt.Sprintf("Selected: %d | Recursive: %v (X) | [Space/Ent] Toggle | [A] Add | [Esc] Dashboard", len(m.browser.selected), m.browser.recursive)
+	status := statusStyle.Render(statusText)
 	
 	return lipgloss.JoinVertical(lipgloss.Left,
 		lipgloss.JoinHorizontal(lipgloss.Top,
